@@ -1,0 +1,33 @@
+## .NET Core
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio Code
+.vscode/
+
+## Visual Studio / JetBrains
+.idea/
+*.DotSettings.user
+
+## OS Generated
+.DS_Store
+Thumbs.db
+
+## Logs
+*.log
+
+## Node / Angular
+node_modules/
+dist/
+.angular/
+
+## Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
