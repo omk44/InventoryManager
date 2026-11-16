@@ -64,6 +64,7 @@ builder.Services.AddAuthentication(options =>
 // 5. Dependency Injection for Application Services
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // 6. Swagger / OpenAPI with JWT Authorization Support
 builder.Services.AddEndpointsApiExplorer();
