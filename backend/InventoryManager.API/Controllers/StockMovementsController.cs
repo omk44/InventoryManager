@@ -38,7 +38,7 @@ public class StockMovementsController : ControllerBase
 
     /// <summary>
     /// Record a new stock ledger movement (IN, OUT, or ADJUST).
-    /// Enforces: Quantity > 0 and OUT <= Available Stock.
+    /// Enforces: Quantity &gt; 0 and OUT &lt;= Available Stock.
     /// Returns 404 (Anti-Discovery) if the item belongs to another user.
     /// </summary>
     [HttpPost]

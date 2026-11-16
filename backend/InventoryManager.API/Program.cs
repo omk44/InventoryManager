@@ -1,7 +1,9 @@
+using System.Reflection;
 using System.Text;
 using InventoryManager.API.Configurations;
 using InventoryManager.API.Data;
 using InventoryManager.API.Data.Seed;
+using InventoryManager.API.Middleware;
 using InventoryManager.API.Models.Entities;
 using InventoryManager.API.Services.Implementations;
 using InventoryManager.API.Services.Interfaces;
@@ -61,7 +63,25 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 5. Dependency Injection for Application Services
+// 5. CORS Configuration (Allows Angular and Flutter clients)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:4200",   // Angular web development server
+            "https://localhost:4200",
+            "http://localhost:3000",   // Alternative frontend / preview
+            "http://10.0.2.2:5070",     // Android emulator localhost bridge
+            "http://localhost:5070"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
+// 6. Dependency Injection for Application Services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -71,7 +91,7 @@ builder.Services.AddScoped<ITaskItemService, TaskItemService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IStockMovementService, StockMovementService>();
 
-// 6. Swagger / OpenAPI with JWT Authorization Support
+// 7. Swagger / OpenAPI with JWT Authorization Support & XML Comments
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -79,12 +99,17 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Task & Inventory Manager API",
         Version = "v1",
-        Description = "Enterprise Task and Inventory Management RESTful API with Ledger-based inventory tracking."
+        Description = "Enterprise Task and Inventory Management RESTful API with dynamic ledger-based stock tracking, anti-discovery security, and JWT authentication.",
+        Contact = new OpenApiContact
+        {
+            Name = "Inventory Manager Team",
+            Email = "support@inventorymanager.local"
+        }
     });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' followed by your token.",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
@@ -106,25 +131,41 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+
+    // Include XML comments if generated
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 var app = builder.Build();
 
-// 7. Seed Database Roles, Default Admin, and Seed Data
+// 8. Seed Database Roles, Default Admin, and Seed Data
 await DatabaseSeeder.SeedAsync(app.Services);
 
-// 8. Configure HTTP Request Pipeline
+// 9. Pipeline Step 1: Global Exception Handling (Catches all downstream exceptions)
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+// 10. Pipeline Step 2: CORS Middleware
+app.UseCors("CorsPolicy");
+
+// 11. Pipeline Step 3: Swagger UI in Development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Task & Inventory Manager API v1");
+        c.RoutePrefix = "swagger";
     });
 }
 
 app.UseHttpsRedirection();
 
+// 12. Pipeline Step 4: Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
