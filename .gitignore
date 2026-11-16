@@ -20,6 +20,9 @@ Thumbs.db
 ## Logs
 *.log
 
+# Local personal documentation
+SETUP_AND_COMMANDS_GUIDE.md
+
 ## Node / Angular
 node_modules/
 dist/
