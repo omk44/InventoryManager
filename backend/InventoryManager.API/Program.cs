@@ -163,7 +163,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // 12. Pipeline Step 4: Authentication & Authorization
 app.UseAuthentication();
