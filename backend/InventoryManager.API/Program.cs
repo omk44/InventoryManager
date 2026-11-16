@@ -67,6 +67,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITaskItemService, TaskItemService>();
 
 // 6. Swagger / OpenAPI with JWT Authorization Support
 builder.Services.AddEndpointsApiExplorer();
