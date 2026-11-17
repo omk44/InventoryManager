@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 using InventoryManager.API.Configurations;
 using InventoryManager.API.Data;
 using InventoryManager.API.Data.Seed;
@@ -16,7 +17,12 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Controller services
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 
 // 2. Database Context configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
